@@ -70,7 +70,7 @@ class RegisterScreen extends StatelessWidget {
               children: [
                 IconButton(icon: SvgPicture.asset('assets/svgs/f_logo.svg',height: 25,), onPressed: () {}),
                 IconButton(icon: SvgPicture.asset('assets/svgs/g_logo.svg',height: 25,), onPressed: () {}),
-                IconButton(icon: SvgPicture.asset('assets/svgs/a_logo.svg',height: 2,), onPressed: () {}),
+                IconButton(icon: SvgPicture.asset('assets/svgs/a_logo.svg',height: 25,), onPressed: () {}),
               ],
             ),
             TextButton(

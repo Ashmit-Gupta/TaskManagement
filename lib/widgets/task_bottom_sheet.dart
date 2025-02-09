@@ -4,20 +4,24 @@ import 'package:task_management_app/bloc/task_bloc/task_bloc.dart';
 import 'package:task_management_app/models/task_model.dart';
 
 void showTaskSheet(BuildContext context, {TaskModel? task}) {
+  final taskBloc = context.read<TaskBloc>();
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
     ),
-    builder: (context) => TaskSheet(task: task),
+    builder: (context) => BlocProvider.value(
+  value: taskBloc,
+  child: TaskSheet(task: task),
+),
   );
 }
 
 class TaskSheet extends StatefulWidget {
   final TaskModel? task; // Null for new task, non-null for edit
 
-  TaskSheet({this.task});
+  const TaskSheet({this.task});
 
   @override
   _TaskSheetState createState() => _TaskSheetState();
