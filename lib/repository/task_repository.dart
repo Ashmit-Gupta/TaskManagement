@@ -11,14 +11,16 @@ class TaskRepository {
   Future<ErrorModel> createTask(TaskModel task, String token) async{
     ErrorModel error = ErrorModel(error: "Something Went Wrong", data: null);
     try {
+      Logger().d("log the json data for create task is :${jsonEncode(task.toJson())}");
+
       final response = await http.post(
           Uri.parse('$kHost/tasks'),
           headers: {'Content-Type': 'application/json', 'token': token},
           body: jsonEncode(task.toJson()));
 
+      Logger().i("Response: ${response.statusCode} -> ${response.body}");
       if (response.statusCode == 200) {
         final responseBody = jsonDecode(response.body);
-        Logger().i("Response: ${response.statusCode} -> $responseBody");
         return ErrorModel(error: null, data: responseBody);
       } else {
         return ErrorModel(error: jsonDecode(response.body)['message'], data: null);
@@ -56,13 +58,13 @@ class TaskRepository {
     return error;
   }
 
-  Future<ErrorModel> updateTask(String token, String id, Map<String, dynamic> updatedTask) async{
+  Future<ErrorModel> updateTask(String token, String id, TaskModel updatedTask) async{
     ErrorModel error = ErrorModel(error: "Something Went Wrong", data: null);
     try {
       final response = await http.patch(
         Uri.parse('$kHost/tasks/$id'),
         headers: {'Content-Type': 'application/json', 'token': token},
-        body: jsonEncode(updatedTask),
+      body: jsonEncode(updatedTask),
       );
       if (response.statusCode == 200) {
         final responseBody = jsonDecode(response.body);

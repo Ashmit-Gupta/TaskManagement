@@ -15,7 +15,7 @@ DeleteTask({required this.id});
 
 final class UpdateTask extends TaskEvent{
   final String id;
-  final Map<String , dynamic> updatedTask;
+  final TaskModel updatedTask;
   UpdateTask({required this.updatedTask , required this.id});
 }
 
