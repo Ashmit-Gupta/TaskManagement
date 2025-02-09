@@ -22,12 +22,14 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
   }
 
   /// Fetches all tasks from the repository
-  Future<void> _onGetAllTasks(GetAllTasks event, Emitter<TaskState> emit) async {
+  Future<void> _onGetAllTasks(
+      GetAllTasks event, Emitter<TaskState> emit) async {
     emit(TaskLoading());
     try {
       final token = await sharedPrefStorage.getToken();
       final response = await taskRepository.getTasks(token);
-      Logger().i("in the get all task operation and hers the data :${response.data}");
+      Logger().i(
+          "in the get all task operation and hers the data :${response.data}");
 
       if (response.error != null) {
         print("log error in getting the task");
@@ -44,53 +46,51 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
   }
 
   Future<void> _onAddTask(CreateTask event, Emitter<TaskState> emit) async {
-    emit(TaskLoading());
-      final token = await sharedPrefStorage.getToken();
-      final ErrorModel response = await taskRepository.createTask(event.task,token);
-      if (response.error == null) {
-        _tasks.add(event.task); // Update local list
-        emit(TaskLoaded(tasks: List.from(_tasks))); // Emit updated state
-      } else {
-        emit(TaskFailure(message: response.error!));
-      }
-    }
-
-
-  /// Updates an existing task
-  Future<void> _onUpdateTask(UpdateTask event, Emitter<TaskState> emit) async {
-    Logger().i("in the update task operation");
-    emit(TaskLoading());
     final token = await sharedPrefStorage.getToken();
-    final ErrorModel response = await taskRepository.updateTask(token,event.id,event.updatedTask,);
+    final ErrorModel response =
+        await taskRepository.createTask(event.task, token);
     if (response.error == null) {
-      int index = _tasks.indexWhere((t)=> t.id == event.id);
-      if(index != -1) {
-        _tasks[index] = _tasks[index].copyWith(
-          id: event.id,
-          dueDate: event.updatedTask.containsKey('dueDate') ? event.updatedTask['dueDate'] : _tasks[index].dueDate,
-          done: event.updatedTask.containsKey('done') ? event.updatedTask['done'] : _tasks[index].done,
-          description: event.updatedTask.containsKey('description') ? event.updatedTask['description'] : _tasks[index].description,
-          priority: event.updatedTask.containsKey('priority') ? event.updatedTask['priority'] : _tasks[index].priority,
-        );
-      }
+      TaskModel task = TaskModel.fromJson(response.data['task']);
+      _tasks.add(task); // Update local list
       emit(TaskLoaded(tasks: List.from(_tasks))); // Emit updated state
     } else {
       emit(TaskFailure(message: response.error!));
     }
   }
+
+  Future<void> _onUpdateTask(UpdateTask event, Emitter<TaskState> emit) async {
+    Logger().i("in the update task operation");
+    final token = await sharedPrefStorage.getToken();
+
+    final ErrorModel response = await taskRepository.updateTask(
+      token,
+      event.id,
+      event.updatedTask,
+    );
+
+    if (response.error == null) {
+      int index = _tasks.indexWhere((t) => t.id == event.id);
+      if (index != -1) {
+        _tasks[index] = event.updatedTask;
+        emit(TaskLoaded(tasks: List.from(_tasks))); // Emit updated state
+      } else {
+        emit(TaskFailure(message: response.error!));
+      }
+    }
+  }
+
   /// Deletes a task
   Future<void> _onDeleteTask(DeleteTask event, Emitter<TaskState> emit) async {
     Logger().i("in the delete task operation");
-    emit(TaskLoading());
     final token = await sharedPrefStorage.getToken();
-    final ErrorModel response = await taskRepository.deleteTask(token,event.id);
+    final ErrorModel response =
+        await taskRepository.deleteTask(token, event.id);
     if (response.error == null) {
-      _tasks.removeWhere((t)=> t.id == event.id); // Update local list
+      _tasks.removeWhere((t) => t.id == event.id); // Update local list
       emit(TaskLoaded(tasks: List.from(_tasks))); // Emit updated state
     } else {
       emit(TaskFailure(message: response.error!));
     }
-
   }
 
   @override
@@ -106,5 +106,4 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     super.onError(error, stackTrace);
     print(error);
   }
-
 }
